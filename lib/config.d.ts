@@ -1,11 +1,12 @@
-export interface columnConfig {
+export interface ColumnConfig {
     type: string,
     prop: string,
-    meta?: columnConfigs,
+    children?: ColumnConfigs,
     stringRandomNum?: number,
     numberMinNum?: number,
     numberMaxNum?: number,
-    arrayRandomNum?: number,
+    arrayMinNum?: number,
+    arrayMaxNum?: number,
     stringMinNum?: number,
     stringMaxNum?: number
 }
@@ -15,5 +16,27 @@ export interface PageParams {
     pageIndex: number
 }
 
-export type columnConfigs = Array<columnConfig>
+export interface ResponseData {
+    code: string | number,
+    data: {
+        records: Array<any>,
+        total?: number
+    } | { [key: string]: any },
+    success: boolean,
+    msg?: string
+}
+
+
+export interface weightStatus {
+    code: string | number,
+    msg: string,
+    weight: number
+}
+
+export enum MockType {
+    ARRAY = 'array',
+    OBJECT = 'object'
+}
+
+export type ColumnConfigs = Array<ColumnConfig>
 

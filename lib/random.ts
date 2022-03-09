@@ -1,3 +1,5 @@
+import { weightStatus } from './config'
+
 const numberRandom = (min: number = 1, max: number = 100) => {
     var Range = max - min;
     var Rand = Math.random();
@@ -17,7 +19,28 @@ const stringRandom = (num: number = 10) => {
     let chinese = arr.join("")
     return chinese
 }
+
+type ResStateObj = {
+    code: string,
+    msg: string,
+    success: boolean
+}
+
+//按权重产生随机枚举值
+const enumRandomByWeight = (statusList: Array<weightStatus>): ResStateObj => {
+    let list: Array<ResStateObj> = []
+    let weightSum = statusList.reduce((total, v) => total + v.weight, 0)
+    statusList.forEach(_statusObj => {
+        let weightFit: number = Math.floor(50 * _statusObj.weight / weightSum)
+        Array.prototype.push.apply(list, (new Array(weightFit)).fill(_statusObj))
+    })
+    let len = list.length
+    let index = numberRandom(0, len - 1)
+    return list[index]
+}
+
 export {
     numberRandom,
-    stringRandom
+    stringRandom,
+    enumRandomByWeight
 }
