@@ -1,9 +1,12 @@
 import { ColumnConfigs, MockType, weightStatus } from './config'
 import Mock from './mock'
+import { VueConstructor } from 'vue/types/vue';
 
 export default class MockCenter {
 
     private _mockManagerMap: { [key: string]: any } = {}
+
+    static install(Vue: VueConstructor) { }
 
     public register(
         name: string,

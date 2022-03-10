@@ -1,5 +1,7 @@
 import { ColumnConfigs, ColumnConfig, PageParams, ResponseData, weightStatus, MockType } from './config'
 import { numberRandom, stringRandom, enumRandomByWeight } from './random'
+import generatorMap from './generators'
+
 
 const __statusList__: Array<weightStatus> = [{
     code: "00000",
@@ -73,19 +75,6 @@ function _mockObj(configs: ColumnConfigs): { [key: string]: any } {
     return obj
 }
 
-function _mockList(configs: ColumnConfigs, listMaxNum: number = 200): Array<{ [key: string]: any }> {
-    let obj: { [key: string]: any } = {}
-    configs.forEach(config => {
-        obj[config.prop] = __randomActionMap__[config.type](config)
-    })
-    let n = numberRandom(listMaxNum)
-    let list: Array<{ [key: string]: any }> = []
-    for (let i = 0; i < n; i++) {
-        list.push(_mockObj(configs))
-    }
-    return list
-}
-
 function _paging(list: Array<{ [key: string]: any }>, pageParams: PageParams): Array<{ [key: string]: any }> {
     let { pageIndex, pageSize } = pageParams
     let beginIndex = (pageIndex - 1) * pageSize
@@ -104,16 +93,38 @@ export default class Mock {
     private _type: string
     private _configs: ColumnConfigs
     private _statusList: Array<weightStatus>
-
+    private _injectFlagMap: { [key: string]: boolean } = {}
 
     constructor(type: MockType = MockType.ARRAY, configs: ColumnConfigs, statusList: Array<weightStatus> = __statusList__) {
         this._type = type
         this._configs = configs
         this._statusList = statusList
         if (this._type === MockType.ARRAY) {
-            this._mockListData = _mockList(configs)
+            this._mockListData = this._mockList(configs)
         }
+        let types = Object.keys(generatorMap).filter(key => generatorMap.hasOwnProperty(key))
+        types.forEach(type => {
+            this._injectFlagMap[type] = false
+        })
     }
+
+    private _mockList(configs: ColumnConfigs, listMaxNum: number = 200): Array<{ [key: string]: any }> {
+        let obj: { [key: string]: any } = {}
+        let injectTypes = Object.keys(this._injectFlagMap).filter(key => this._injectFlagMap.hasOwnProperty(key) && this._injectFlagMap[key]).map(key => `___${key}___`)
+        configs.forEach(config => {
+            if (injectTypes.includes(config.prop)) {
+                throw new Error(`当前配置prop属性值：${config.prop}与注入的属性重名`);
+            }
+            obj[config.prop] = __randomActionMap__[config.type](config)
+        })
+        let n = numberRandom(listMaxNum)
+        let list: Array<{ [key: string]: any }> = []
+        for (let i = 0; i < n; i++) {
+            list.push(_mockObj(configs))
+        }
+        return list
+    }
+
 
     private _mockResObj(pageIndex: number, pageSize: number): ResponseData {
         let resStateObj = enumRandomByWeight(this._statusList)
@@ -126,6 +137,7 @@ export default class Mock {
         return res
     }
 
+
     public mockNetRes({
         pageIndex = 1,
         pageSize = 10,
@@ -133,5 +145,19 @@ export default class Mock {
         return new Promise((resolve, reject) => {
             resolve(this._mockResObj(pageIndex, pageSize))
         })
+    }
+
+    public inject(type: string = 'id') {
+        let types = Object.keys(generatorMap).filter(key => generatorMap.hasOwnProperty(key))
+        if (this._type !== 'array') {
+            return
+        }
+        if (!types.includes(type)) {
+            throw new Error(`mock对象不支持inject参数type为${type}`)
+        }
+        this._mockListData.forEach(v => {
+            v[`___${type}___`] = generatorMap[type]()
+        })
+        this._injectFlagMap[type] = true
     }
 }
