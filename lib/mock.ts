@@ -1,4 +1,4 @@
-import { ColumnConfigs, ColumnConfig, PageParams, ResponseData, weightStatus, MockType } from './config'
+import { ColumnConfigs, ColumnConfig, PageParams, ResponseData, weightStatus, MockType, EditParams } from './config'
 import { numberRandom, stringRandom, enumRandomByWeight } from './random'
 import generatorMap from './generators'
 
@@ -66,6 +66,7 @@ function _arrayRandom(config: ColumnConfig): Array<any> {
     }
     return list;
 }
+
 
 function _mockObj(configs: ColumnConfigs): { [key: string]: any } {
     let obj: { [key: string]: any } = {}
@@ -164,6 +165,10 @@ export default class Mock {
     }
 
     public mockDelete(key: string) {
+
+    }
+
+    public mockEdit({ key, ...rest }: EditParams) {
 
     }
 }

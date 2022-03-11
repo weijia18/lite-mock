@@ -39,5 +39,10 @@ export enum MockType {
     OBJECT = 'object'
 }
 
+export interface EditParams {
+    key: string,
+    [key: string]: any
+}
+
 export type ColumnConfigs = Array<ColumnConfig>
 
