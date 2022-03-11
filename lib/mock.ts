@@ -162,4 +162,8 @@ export default class Mock {
         })
         this._injectFlagMap[type] = true
     }
+
+    public mockDelete(key: string) {
+
+    }
 }
