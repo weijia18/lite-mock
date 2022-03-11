@@ -23,16 +23,15 @@ const stringRandom = (num: number = 10) => {
 type ResStateObj = {
     code: string,
     msg: string,
-    success: boolean
 }
 
 //按权重产生随机枚举值
 const enumRandomByWeight = (statusList: Array<weightStatus>): ResStateObj => {
     let list: Array<ResStateObj> = []
-    let weightSum = statusList.reduce((total, v) => total + v.weight, 0)
-    statusList.forEach(_statusObj => {
-        let weightFit: number = Math.floor(50 * _statusObj.weight / weightSum)
-        Array.prototype.push.apply(list, (new Array(weightFit)).fill(_statusObj))
+    let weightSum = statusList.reduce((total, v) => total + (v.weight), 0)
+    statusList.forEach(_weightStatusObj => {
+        let weightFit: number = Math.floor(50 * (_weightStatusObj.weight) / weightSum)
+        Array.prototype.push.apply(list, (new Array(weightFit)).fill(_weightStatusObj as ResStateObj))
     })
     let len = list.length
     let index = numberRandom(0, len - 1)

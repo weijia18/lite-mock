@@ -129,7 +129,9 @@ export default class Mock {
     private _mockResObj(pageIndex: number, pageSize: number): ResponseData {
         let resStateObj = enumRandomByWeight(this._statusList)
         let res = { ...resStateObj } as ResponseData
+        res.data = {}
         if (this._type === MockType.ARRAY) {
+            res.data.total = this._mockListData.length
             res.data.records = _paging(this._mockListData, { pageIndex, pageSize })
         } else {
             res.data = _mockObj(this._configs)
@@ -139,9 +141,9 @@ export default class Mock {
 
 
     public mockNetRes({
-        pageIndex = 1,
-        pageSize = 10,
-    }: { [key: string]: any }): Promise<any> {
+        pageIndex,
+        pageSize,
+    }: { [key: string]: any } = { pageIndex: 1, pageSize: 10 }): Promise<any> {
         return new Promise((resolve, reject) => {
             resolve(this._mockResObj(pageIndex, pageSize))
         })

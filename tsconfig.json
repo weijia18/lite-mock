@@ -6,6 +6,8 @@
         "outDir": "./dist",
         "rootDir": "./lib",
         "strict": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
     }
 }
