@@ -114,7 +114,12 @@ export default class Mock {
         this._statusList = statusList
     }
 
-    public mockDelete(key: string) {
+    public mockDelete(key: string, value: string | number) {
+        let keys = this._configs.map(v => v.prop)
+        if (!keys.includes(key)) {
+            throw new Error(`对象不存在属性${key}`);
+        }
+        console.warn(`请确保属性${key}的值唯一`)
 
     }
 
