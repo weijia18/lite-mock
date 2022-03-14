@@ -1,6 +1,6 @@
-import { ColumnConfigs, ColumnConfig, PageParams, ResponseData, weightStatus, MockType, EditParams } from './config'
-import { numberRandom, stringRandom, enumRandomByWeight } from './random'
-import generatorMap from './generators'
+import { ColumnConfigs, PageParams, ResponseData, weightStatus, MockType, EditParams } from './config'
+import MockCenter from './mockCenter'
+import { numberRandom, enumRandomByWeight } from './random'
 
 
 const __statusList__: Array<weightStatus> = [{
@@ -41,40 +41,6 @@ const __statusList__: Array<weightStatus> = [{
     weight: 10
 }]
 
-function _stringRandom(config: ColumnConfig): string {
-    let { stringMinNum, stringMaxNum } = config
-    let n = numberRandom(stringMinNum, stringMaxNum)
-    return stringRandom(n)
-}
-
-function _numberRandom(config: ColumnConfig): number {
-    let { numberMinNum, numberMaxNum } = config
-    let n = numberRandom(numberMinNum || 1, numberMaxNum || 100)
-    return n
-}
-
-function _arrayRandom(config: ColumnConfig): Array<any> {
-    let { arrayMinNum, arrayMaxNum, children } = config
-    let n = numberRandom(arrayMinNum || 1, arrayMaxNum || 100)
-    let list = [];
-    for (let i = 0; i < n; i++) {
-        if (children) {
-            list.push(_mockObj(children));
-        } else {
-            list.push(numberRandom(1, 100))
-        }
-    }
-    return list;
-}
-
-
-function _mockObj(configs: ColumnConfigs): { [key: string]: any } {
-    let obj: { [key: string]: any } = {}
-    configs.forEach(config => {
-        obj[config.prop] = __randomActionMap__[config.type](config)
-    })
-    return obj
-}
 
 function _paging(list: Array<{ [key: string]: any }>, pageParams: PageParams): Array<{ [key: string]: any }> {
     let { pageIndex, pageSize } = pageParams
@@ -83,18 +49,13 @@ function _paging(list: Array<{ [key: string]: any }>, pageParams: PageParams): A
     return list.slice(beginIndex, endIndex)
 }
 
-const __randomActionMap__: { [key: string]: any } = {
-    string: _stringRandom,
-    number: _numberRandom,
-    array: _arrayRandom
-};
 export default class Mock {
 
     private _mockListData: Array<{ [key: string]: any }> = []
     private _type: string
     private _configs: ColumnConfigs
     private _statusList: Array<weightStatus>
-    private _injectFlagMap: { [key: string]: boolean } = {}
+
 
     constructor(type: MockType = MockType.ARRAY, configs: ColumnConfigs, statusList: Array<weightStatus> = __statusList__) {
         this._type = type
@@ -103,25 +64,24 @@ export default class Mock {
         if (this._type === MockType.ARRAY) {
             this._mockListData = this._mockList(configs)
         }
-        let types = Object.keys(generatorMap).filter(key => generatorMap.hasOwnProperty(key))
-        types.forEach(type => {
-            this._injectFlagMap[type] = false
+    }
+
+    static _mockObj(configs: ColumnConfigs): { [key: string]: any } {
+        let obj: { [key: string]: any } = {}
+        configs.forEach(config => {
+            if (!MockCenter.__randomActionMap__[config.type]) {
+                throw new Error("MockCenter中找不到类型为${config.type}的生成器，请先在MockCenter注入该类型的生成器");
+            }
+            obj[config.prop] = MockCenter.__randomActionMap__[config.type](config)
         })
+        return obj
     }
 
     private _mockList(configs: ColumnConfigs, listMaxNum: number = 200): Array<{ [key: string]: any }> {
-        let obj: { [key: string]: any } = {}
-        let injectTypes = Object.keys(this._injectFlagMap).filter(key => this._injectFlagMap.hasOwnProperty(key) && this._injectFlagMap[key]).map(key => `___${key}___`)
-        configs.forEach(config => {
-            if (injectTypes.includes(config.prop)) {
-                throw new Error(`当前配置prop属性值：${config.prop}与注入的属性重名`);
-            }
-            obj[config.prop] = __randomActionMap__[config.type](config)
-        })
         let n = numberRandom(listMaxNum)
         let list: Array<{ [key: string]: any }> = []
         for (let i = 0; i < n; i++) {
-            list.push(_mockObj(configs))
+            list.push(Mock._mockObj(configs))
         }
         return list
     }
@@ -135,7 +95,7 @@ export default class Mock {
             res.data.total = this._mockListData.length
             res.data.records = _paging(this._mockListData, { pageIndex, pageSize })
         } else {
-            res.data = _mockObj(this._configs)
+            res.data = Mock._mockObj(this._configs)
         }
         return res
     }
@@ -150,18 +110,8 @@ export default class Mock {
         })
     }
 
-    public inject(type: string = 'id') {
-        let types = Object.keys(generatorMap).filter(key => generatorMap.hasOwnProperty(key))
-        if (this._type !== 'array') {
-            return
-        }
-        if (!types.includes(type)) {
-            throw new Error(`mock对象不支持inject参数type为${type}`)
-        }
-        this._mockListData.forEach(v => {
-            v[`___${type}___`] = generatorMap[type]()
-        })
-        this._injectFlagMap[type] = true
+    public injectStatus(statusList: Array<weightStatus>) {
+        this._statusList = statusList
     }
 
     public mockDelete(key: string) {
