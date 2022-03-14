@@ -1,4 +1,4 @@
-import { ColumnConfigs, MockType, weightStatus } from './config'
+import { ColumnConfigs, MockType } from './config'
 import Mock from './mock'
 import { VueConstructor } from 'vue/types/vue';
 import generatorMap from './generators'
