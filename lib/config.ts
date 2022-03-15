@@ -31,7 +31,8 @@ export interface ResponseData {
 export interface weightStatus {
     code: string | number,
     msg: string,
-    weight: number
+    weight: number,
+    success: boolean
 }
 
 export enum MockType {
@@ -39,8 +40,7 @@ export enum MockType {
     OBJECT = 'object'
 }
 
-export interface EditParams {
-    key: string,
+export interface MockActionParams {
     [key: string]: any
 }
 

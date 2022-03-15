@@ -6,8 +6,8 @@ import generatorMap from './generators'
 
 export default class MockCenter {
 
-    private _mockManagerMap: { [key: string]: any } = {}
-    static __randomActionMap__: { [key: string]: any }
+    private _mockManagerMap: { [key: string]: any } = Object.create(null)
+    static __randomActionMap__: { [key: string]: any } = Object.create(null)
 
 
     constructor() {
@@ -46,7 +46,7 @@ export default class MockCenter {
     }
 
     public injectGenerator(type: string, generator: Function) {
-        let keys = Object.keys(MockCenter.__randomActionMap__).filter(v => MockCenter.__randomActionMap__.hasOwnProperty(v))
+        let keys = Object.keys(MockCenter.__randomActionMap__)
         if (keys.includes(type)) {
             throw new Error('已包含类型为${type}的生成器，请更换类型名称')
         }

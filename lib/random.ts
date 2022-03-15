@@ -28,9 +28,9 @@ type ResStateObj = {
 //按权重产生随机枚举值
 const enumRandomByWeight = (statusList: Array<weightStatus>): ResStateObj => {
     let list: Array<ResStateObj> = []
-    let weightSum = statusList.reduce((total, v) => total + (v.weight), 0)
+    let weightSum = statusList.reduce((total, v) => (total + v.weight), 0)
     statusList.forEach(_weightStatusObj => {
-        let weightFit: number = Math.floor(50 * (_weightStatusObj.weight) / weightSum)
+        let weightFit: number = Math.floor(50 * _weightStatusObj.weight / weightSum)
         Array.prototype.push.apply(list, (new Array(weightFit)).fill(_weightStatusObj as ResStateObj))
     })
     let len = list.length
