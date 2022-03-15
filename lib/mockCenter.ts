@@ -45,6 +45,13 @@ export default class MockCenter {
         this._mockManagerMap = {}
     }
 
+    public getMockInstance(name: string) {
+        if (!this._mockManagerMap[name]) {
+            throw new Error(`不存在名称为${name}的mock实例`);
+        }
+        return this._mockManagerMap[name]
+    }
+
     public injectGenerator(type: string, generator: Function) {
         let keys = Object.keys(MockCenter.__randomActionMap__)
         if (keys.includes(type)) {
