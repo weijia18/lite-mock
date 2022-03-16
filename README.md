@@ -15,7 +15,36 @@
     
   2.通过MockCenter注册mock实例
     
-    let mock = this.$mockCenter.resgister('name', mockConfigs)
+      let mock = this.$mockCenter.register(
+          name: string,
+          {
+              mockType,
+              mockConfigs
+          }
+      )
+    
+    mockType为枚举值：
+    
+      MockType {
+          ARRAY = 'array',
+          OBJECT = 'object'
+      }
+    
+    mockConfigs如下：
+    
+      [{
+          type: 'string',
+          prop: 'name'
+      }, {
+          type: 'array',
+          prop: 'tags'
+      }, {
+          type: 'number',
+          prop: 'count'
+      }, {
+          type: 'id',
+          prop: 'id'
+      }]
     
   3.mock实例提供了mockNetRes函数能够模拟增删改查
     
